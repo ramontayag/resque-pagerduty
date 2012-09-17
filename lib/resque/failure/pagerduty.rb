@@ -1,6 +1,8 @@
 module Resque
   module Failure
-    class Pagerduty
+    # A Resque failure backend that handles exceptions by triggering
+    # incidents in the Pagerduty API
+    class Pagerduty < Base
     end
   end
 end
