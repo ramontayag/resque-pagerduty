@@ -1,5 +1,3 @@
-require "resque_pagerduty/version"
+require 'resque_pagerduty/version'
 
-module ResquePagerduty
-  # Your code goes here...
-end
+require 'resque/failure/pagerduty'
