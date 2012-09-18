@@ -7,15 +7,20 @@ describe Resque::Failure::Pagerduty do
     subject { backend }
     let(:backend) { Resque::Failure::Pagerduty.new(exception, worker, queue, payload) }
 
-    let(:exception) { mock(:exception) }
+    let(:exception) do
+      error = StandardError.new('This is a test exception message')
+      error.set_backtrace(['dummy_file.rb:23','dummy_file.rb:42'])
+      error
+    end
+
     let(:worker) { mock(:worker) }
-    let(:queue) { mock(:queue) }
+    let(:queue) { 'my_queue' }
 
     let(:payload) do
       {'class' => payload_class,
        'arguments' => payload_args}
     end
-    let(:payload_class) { mock(:payload_class) }
+    let(:payload_class) { mock(:payload_class, :to_s => 'payload_class') }
     let(:payload_args) { [] }
 
     describe '#initialize' do
@@ -44,7 +49,7 @@ describe Resque::Failure::Pagerduty do
         end
 
         context 'when the payload class has a nil service_key' do
-          before { payload_class.stub(:service_key => nil) }
+          before { payload_class.stub(:pagerduty_service_key => nil) }
 
           it { should == default_service_key }
         end
@@ -63,14 +68,91 @@ describe Resque::Failure::Pagerduty do
         end
 
         context 'when the payload class has a nil service_key' do
-          before { payload_class.stub(:service_key => nil) }
+          before { payload_class.stub(:pagerduty_service_key => nil) }
 
           it { should be_nil }
         end
       end
     end
 
-    it { should respond_to(:save) }
+    describe '#save' do
+      subject(:save) { backend.save }
+
+      before do
+        Resque::Failure::Pagerduty.configure do |config|
+          config.subdomain = subdomain
+          config.service_key = service_key
+          config.username = username
+          config.password = password
+        end
+      end
+
+      let(:subdomain) { 'my_domain' }
+      let(:service_key) { 'my_key' }
+      let(:username) { 'my_user' }
+      let(:password) { 'my_secret' }
+
+      before do
+        stub_request(:any, /.*.pagerduty.com.*/).to_return(
+          :status => 200,
+          :headers => {'Content-Type' => 'application/json'},
+          :body => {'status' => 'success',
+                    'message' => 'Event processed',
+                    'incident_key' => '112358abcdef'}.to_json
+        )
+      end
+
+      it 'should send a post request to the pagerduty api' do
+        save
+        a_request(:post, /.*.pagerduty.com/).should have_been_made
+      end
+
+      it 'should call the pagerduty api with the correct endpoint' do
+        save
+        a_request(:any, 'https://events.pagerduty.com/generic/2010-04-15/create_event.json').should have_been_made
+      end
+
+      it 'should call the pagerduty api with the correct service key' do
+        save
+        a_request(:any, /.*.pagerduty.com/).with(:body => /"service_key":"#{service_key}"/).should have_been_made
+      end
+
+      it 'should call the pagerduty api with the correct event_type' do
+        save
+        a_request(:any, /.*.pagerduty.com/).with(:body => /"event_type":"trigger"/).should have_been_made
+      end
+
+      it 'should call the pagerduty api with the correct description' do
+        save
+        a_request(:any, /.*.pagerduty.com/).with(:body => /"description":"Job raised an error: #{exception.to_s}"/).should have_been_made
+      end
+
+      it 'should call the pagerduty api with the correct class in the details' do
+        save
+        a_request(:any, /.*.pagerduty.com/).with(:body => /"details":\{.*"class":"#{payload_class.to_s}".*\}/).should have_been_made
+      end
+
+      it 'should call the pagerduty api with the correct args in the details' do
+        save
+        a_request(:any, /.*.pagerduty.com/).with(:body => /"details":\{.*"args":\[\].*\}/).should have_been_made
+      end
+
+      it 'should call the pagerduty api with the correct queue in the details' do
+        save
+        a_request(:any, /.*.pagerduty.com/).with(:body => /"details":\{.*"queue":"#{queue}".*\}/).should have_been_made
+      end
+
+      it 'should call the pagerduty api with the correct exception in the details' do
+        save
+        a_request(:any, /.*.pagerduty.com/).with(:body => /"details":\{.*"exception":"#{exception.inspect}".*\}/).should have_been_made
+      end
+
+      it 'should call the pagerduty api with the correct backtrace in the details' do
+        save
+        a_request(:any, /.*.pagerduty.com/).with(:body => /"details":\{.*"backtrace":"dummy_file.rb:23\\ndummy_file.rb:42".*\}/).should have_been_made
+      end
+    end
+
     it { should respond_to(:log) }
   end
 
