@@ -50,20 +50,22 @@ module Resque
 
       # Trigger an incident in Pagerduty when a job fails.
       def save
-        pagerduty_client.trigger_incident(
-          :description => "Job raised an error: #{self.exception.to_s}",
-          :details => {:queue => queue,
-                       :class => payload['class'].to_s,
-                       :args => payload['arguments'],
-                       :exception => exception.inspect,
-                       :backtrace => exception.backtrace.join("\n")}
-        )
+        if service_key
+          pagerduty_client.trigger_incident(
+            :description => "Job raised an error: #{self.exception.to_s}",
+            :details => {:queue => queue,
+                         :class => payload['class'].to_s,
+                         :args => payload['arguments'],
+                         :exception => exception.inspect,
+                         :backtrace => exception.backtrace.join("\n")}
+          )
+        end
       end
 
       private
       def pagerduty_client
         Redphone::Pagerduty.new(
-          :service_key => self.service_key,
+          :service_key => service_key,
           :subdomain => '',
           :user => '',
           :password => ''
