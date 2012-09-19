@@ -4,39 +4,41 @@ A [Resque][resque] failure backend for triggering incidents in [Pagerduty][pager
 
 ## Documentation ##
 
-**TODO**
+Complete documentation for this gem is on [rubydoc.info][rubydoc].
+
+More general information about resque failure backends is on the
+[official resque wiki][resque-failure].
 
 ## Installation ##
 
-**TODO**
+To install from [rubygems][rubygems]:
+
+    gem install resque_pagerduty
+
+To use with bundler, add the following to your Gemfile:
+
+    gem 'resque_pagerduty'
 
 ## Examples ##
 
 ### Pagerduty Configuration ###
 
 You'll need to configure the failure backend with enough information to
-trigger an incident in the [Pagerduty Integration API][pd-integration-api] or
-query for incidents in the [Pagerduty REST API][pd-rest-api]:
-
-    require 'resque_pagerduty'
+trigger an incident in the [Pagerduty Integration API][pd-integration-api]:
 
     Resque::Failure::Pagerduty.configure do |config|
-      config.subdomain = 'pagerduty_subdomain'
-      config.username = 'my_pagerduty_user'
-      config.password = 'my_pagerduty_password'
       config.service_key = 'my_pagerduty_service_key'
     end
 
-The above configuration will the backend to trigger incidents at the Pagerduty
-service identified by the service key GUID (it must be set up as a "Generic API"
-service within Pagerduty).
+The above configuration will cause the backend to handle all exceptions by triggering
+incidents at the Pagerduty service identified by the service key GUID (it must be set
+up as a "Generic API" service within Pagerduty).
 
-The subdomain, username, and password should be the same for all of your resque jobs.
 However, you may want to have different jobs trigger incidents in different Pagerduty
-services. The failure backend will automatically look for a class method named
-`pagerduty_service_key` on the resque payload class, and will preferentially
-use that value. Otherwise, it will default to using the `service_key`
-configured on the backend itself. For example:
+services. When handling an exception, the failure backend will automatically look for
+a class method named `pagerduty_service_key` on the resque payload class, and will
+preferentially use that callback. If this callback does not exist on the job class,
+it will default to using the `service_key` configured on the backend itself. For example:
 
     class MyJob
       @queue = :my_queue
@@ -61,9 +63,6 @@ Using only the Pagerduty failure backend:
     require 'resque_pagerduty'
 
     Resque::Failure::Pagerduty.configure do |config|
-      config.subdomain = 'pagerduty_subdomain'
-      config.username = 'my_pagerduty_user'
-      config.password = 'my_pagerduty_password'
       config.service_key = 'my_pagerduty_service_key'
     end
 
@@ -74,20 +73,19 @@ Using only the Pagerduty failure backend:
 Using both the Redis and Pagerduty failure backends:
 
     require 'resque_pagerduty'
-    require 'resque/failure/multiple'
     require 'resque/failure/redis'
+    require 'resque/failure/multiple'
 
     Resque::Failure::Pagerduty.configure do |config|
-      config.subdomain = 'pagerduty_subdomain'
-      config.username = 'my_pagerduty_user'
-      config.password = 'my_pagerduty_password'
       config.service_key = 'my_pagerduty_service_key'
     end
 
     Resque::Failure::Multiple.classes = [Resque::Failure::Redis, Resque::Failure::Pagerduty]
     Resque::Failure.backend = Resque::Failure::Multiple
 
+ [resque-failure]: https://github.com/defunkt/resque/wiki/Failure-Backends
+ [rubydoc]: http://rubydoc.info/gems/resque_pagerduty/frames
+ [rubygems]: http://rubygems.org/gems/resque_pagerduty
  [resque]: https://github.com/defunkt/resque
  [pagerduty]: http://pagerduty.com
  [pd-integration-api]: http://developer.pagerduty.com/documentation/integration/events
- [pd-rest-api]: http://developer.pagerduty.com/documentation/rest
