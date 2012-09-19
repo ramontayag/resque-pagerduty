@@ -78,19 +78,8 @@ describe Resque::Failure::Pagerduty do
     describe '#save' do
       subject(:save) { backend.save }
 
-      before do
-        Resque::Failure::Pagerduty.configure do |config|
-          config.subdomain = subdomain
-          config.service_key = service_key
-          config.username = username
-          config.password = password
-        end
-      end
-
-      let(:subdomain) { 'my_domain' }
+      before { Resque::Failure::Pagerduty.service_key = service_key }
       let(:service_key) { 'my_key' }
-      let(:username) { 'my_user' }
-      let(:password) { 'my_secret' }
 
       before do
         stub_request(:any, /.*.pagerduty.com.*/).to_return(
@@ -162,32 +151,14 @@ describe Resque::Failure::Pagerduty do
     describe '.configure' do
       subject(:configure) do
         Resque::Failure::Pagerduty.configure do |config|
-          config.subdomain = subdomain
           config.service_key = service_key
-          config.username = username
-          config.password = password
         end
       end
 
-      let(:subdomain) { 'my_domain' }
       let(:service_key) { 'my_key' }
-      let(:username) { 'my_user' }
-      let(:password) { 'my_secret' }
-
-      it 'should change the subdomain on the backend class' do
-        expect { configure }.to change { Resque::Failure::Pagerduty.subdomain }.to(subdomain)
-      end
 
       it 'should change the service key on the backend class' do
         expect { configure }.to change { Resque::Failure::Pagerduty.service_key }.to(service_key)
-      end
-
-      it 'should change the username on the backend class' do
-        expect { configure }.to change { Resque::Failure::Pagerduty.username }.to(username)
-      end
-
-      it 'should change the password on the backend class' do
-        expect { configure }.to change { Resque::Failure::Pagerduty.password }.to(password)
       end
     end
 
@@ -196,27 +167,12 @@ describe Resque::Failure::Pagerduty do
 
       before do
         Resque::Failure::Pagerduty.configure do |config|
-          config.subdomain = 'foo'
           config.service_key = 'foo'
-          config.username = 'foo'
-          config.password = 'foo'
         end
-      end
-
-      it 'should change the subdomain on the backend class' do
-        expect { reset }.to change { Resque::Failure::Pagerduty.subdomain }.to(nil)
       end
 
       it 'should change the service key on the backend class' do
         expect { reset }.to change { Resque::Failure::Pagerduty.service_key }.to(nil)
-      end
-
-      it 'should change the username on the backend class' do
-        expect { reset }.to change { Resque::Failure::Pagerduty.username }.to(nil)
-      end
-
-      it 'should change the password on the backend class' do
-        expect { reset }.to change { Resque::Failure::Pagerduty.password }.to(nil)
       end
     end
 

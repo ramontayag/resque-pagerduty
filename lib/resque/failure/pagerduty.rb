@@ -7,19 +7,10 @@ module Resque
     # incidents in the Pagerduty API
     class Pagerduty < Base
       class << self
-        # The subdomain for the Pagerduty endpoint url
-        attr_accessor :subdomain
-
         # The default GUID of the Pagerduty "Generic API" service to be notified.
         # This is the "service key" listed on a Generic API's service detail page
         # in the Pagerduty app.
         attr_accessor :service_key
-
-        # The user for authenticating to Pagerduty
-        attr_accessor :username
-
-        # The password for authenticating to Pagerduty
-        attr_accessor :password
       end
 
       # The GUID of the Pagerduty "Generic API" service to be notified.
@@ -40,18 +31,12 @@ module Resque
 
       # Configures the failure backend for the Pagerduty API.
       #
-      # @example Full configuration
+      # @example Minimal configuration
       #   Resque::Failure::Pagerduty.configure do |config|
-      #     config.subdomain = 'my_subdomain'
       #     config.service_key = '123abc456def'
-      #     config.username = 'my_user'
-      #     config.password = 'my_pass'
       #   end
       #
-      # @see .subdomain
       # @see .service_key
-      # @see .username
-      # @see .password
       def self.configure
         yield self
         self
@@ -60,10 +45,7 @@ module Resque
       # Resets configured values.
       # @see .configure
       def self.reset
-        self.subdomain = nil
         self.service_key = nil
-        self.username = nil
-        self.password = nil
       end
 
       # Trigger an incident in Pagerduty when a job fails.
@@ -82,9 +64,9 @@ module Resque
       def pagerduty_client
         Redphone::Pagerduty.new(
           :service_key => self.service_key,
-          :subdomain => self.class.subdomain,
-          :user => self.class.username,
-          :password => self.class.password
+          :subdomain => '',
+          :user => '',
+          :password => ''
         )
       end
     end
