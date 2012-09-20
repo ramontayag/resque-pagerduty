@@ -1,17 +1,19 @@
 # -*- encoding: utf-8 -*-
 $:.push File.expand_path("../lib", __FILE__)
-require "resque_pagerduty/version"
 
 Gem::Specification.new do |s|
-  s.name        = "resque_pagerduty"
-  s.version     = ResquePagerduty::VERSION
-  s.authors     = ["maeve"]
+  s.name        = "resque-pagerduty"
+  s.version     = "0.0.1"
+  s.authors     = ["Maeve Revels"]
   s.email       = ["maeve.revels@g5platform.com"]
-  s.homepage    = ""
-  s.summary     = "A Resque failure backend for PagerDuty"
-  s.description = "resque_pagerduty provides a Resque failure backend that triggers a Pagerduty incident when an exception is raised by a job."
+  s.homepage    = "http://github.com/maeve/resque-pagerduty"
+  s.summary     = "A Resque failure backend for Pagerduty"
+  s.description = <<-HERE
+  resque-pagerduty provides a Resque failure backend that triggers a Pagerduty
+  incident when an exception is raised by a job.
+  HERE
 
-  s.rubyforge_project = "resque_pagerduty"
+  s.rubyforge_project = "resque-pagerduty"
 
   s.files         = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")

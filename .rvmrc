@@ -1,1 +1,1 @@
-rvm --create use 1.8.7@resque_pagerduty
+rvm --create use 1.8.7@resque-pagerduty

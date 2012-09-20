@@ -1,4 +1,4 @@
-# Resque Pagerduty #
+# resque-pagerduty #
 
 A [Resque][resque] failure backend for triggering incidents in [Pagerduty][pagerduty].
 
@@ -13,11 +13,12 @@ More general information about resque failure backends is on the
 
 To install from [rubygems][rubygems]:
 
-    gem install resque_pagerduty
+    $ gem install resque-pagerduty
 
-To use with bundler, add the following to your Gemfile:
+To use with bundler without adding explicit require statements to your code,
+add the following to your Gemfile:
 
-    gem 'resque_pagerduty'
+    gem 'resque-pagerduty', :require => 'resque_pagerduty'
 
 ## Examples ##
 
@@ -60,7 +61,7 @@ backend would use the `MyJob.pagerduty_service_key` instead of the
 
 Using only the Pagerduty failure backend:
 
-    require 'resque_pagerduty'
+    require 'resque/failure/pagerduty'
 
     Resque::Failure::Pagerduty.configure do |config|
       config.service_key = 'my_pagerduty_service_key'
@@ -72,7 +73,7 @@ Using only the Pagerduty failure backend:
 
 Using both the Redis and Pagerduty failure backends:
 
-    require 'resque_pagerduty'
+    require 'resque/failure/pagerduty'
     require 'resque/failure/redis'
     require 'resque/failure/multiple'
 
@@ -84,8 +85,8 @@ Using both the Redis and Pagerduty failure backends:
     Resque::Failure.backend = Resque::Failure::Multiple
 
  [resque-failure]: https://github.com/defunkt/resque/wiki/Failure-Backends
- [rubydoc]: http://rubydoc.info/gems/resque_pagerduty/frames
- [rubygems]: http://rubygems.org/gems/resque_pagerduty
+ [rubydoc]: http://rubydoc.info/gems/resque-pagerduty/frames
+ [rubygems]: http://rubygems.org/gems/resque-pagerduty
  [resque]: https://github.com/defunkt/resque
  [pagerduty]: http://pagerduty.com
  [pd-integration-api]: http://developer.pagerduty.com/documentation/integration/events
