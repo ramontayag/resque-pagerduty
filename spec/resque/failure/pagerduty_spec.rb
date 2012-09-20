@@ -13,14 +13,16 @@ describe Resque::Failure::Pagerduty do
       error
     end
 
-    let(:worker) { mock(:worker) }
+    let(:worker) { mock(:worker, :log => nil) }
     let(:queue) { 'my_queue' }
 
     let(:payload) do
-      {'class' => payload_class,
+      {'class' => payload_class.name,
        'arguments' => payload_args}
     end
-    let(:payload_class) { mock(:payload_class, :to_s => 'payload_class') }
+    let(:payload_class) { Class.new }
+    before { stub_const('TestPayloadClass', payload_class) }
+
     let(:payload_args) { [] }
 
     describe '#initialize' do

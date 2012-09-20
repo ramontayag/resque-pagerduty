@@ -21,9 +21,10 @@ module Resque
       # @see .configure
       # @see .service_key
       def service_key
-        if (payload['class'].respond_to?(:pagerduty_service_key) &&
-            !payload['class'].pagerduty_service_key.nil?)
-          payload['class'].pagerduty_service_key
+        payload_class = Module.const_get(payload['class'])
+        if (payload_class.respond_to?(:pagerduty_service_key) &&
+            !payload_class.pagerduty_service_key.nil?)
+          payload_class.pagerduty_service_key
         else
           self.class.service_key
         end
