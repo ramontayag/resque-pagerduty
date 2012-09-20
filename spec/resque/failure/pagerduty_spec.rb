@@ -13,17 +13,17 @@ describe Resque::Failure::Pagerduty do
       error
     end
 
-    let(:worker) { mock(:worker, :log => nil) }
+    let(:worker) { mock(:worker, :log => nil, :to_s => 'local.worker:1234') }
     let(:queue) { 'my_queue' }
 
     let(:payload) do
       {'class' => payload_class.name,
-       'arguments' => payload_args}
+       'args' => payload_args}
     end
     let(:payload_class) { Class.new }
     before { stub_const('TestPayloadClass', payload_class) }
 
-    let(:payload_args) { [] }
+    let(:payload_args) { [123] }
 
     describe '#initialize' do
       its(:exception) { should == exception }
@@ -116,17 +116,17 @@ describe Resque::Failure::Pagerduty do
 
         it 'should call the pagerduty api with the correct description' do
           save
-          a_request(:any, /.*\.pagerduty\.com/).with(:body => /"description":"Job raised an error: #{exception.to_s}"/).should have_been_made
+          a_request(:any, /.*\.pagerduty\.com/).with(:body => /"description":"#{exception.class} in #{payload_class}: #{exception.message}"/).should have_been_made
         end
 
         it 'should call the pagerduty api with the correct class in the details' do
           save
-          a_request(:any, /.*\.pagerduty\.com/).with(:body => /"details":\{.*"class":"#{payload_class.to_s}".*\}/).should have_been_made
+          a_request(:any, /.*\.pagerduty\.com/).with(:body => /"details":\{.*"payload":\{.*"class":"#{payload_class.name}".*\}.*\}/).should have_been_made
         end
 
         it 'should call the pagerduty api with the correct args in the details' do
           save
-          a_request(:any, /.*\.pagerduty\.com/).with(:body => /"details":\{.*"args":\[\].*\}/).should have_been_made
+          a_request(:any, /.*\.pagerduty\.com/).with(:body => /"details":\{.*"payload":\{.*"args":\[123\].*\}.*\}/).should have_been_made
         end
 
         it 'should call the pagerduty api with the correct queue in the details' do
@@ -134,15 +134,26 @@ describe Resque::Failure::Pagerduty do
           a_request(:any, /.*\.pagerduty\.com/).with(:body => /"details":\{.*"queue":"#{queue}".*\}/).should have_been_made
         end
 
-        it 'should call the pagerduty api with the correct exception in the details' do
+        it 'should call the pagerduty api with the correct worker in the details' do
           save
-          a_request(:any, /.*.pagerduty.com/).with(:body => /"details":\{.*"exception":"#{exception.inspect}".*\}/).should have_been_made
+          a_request(:any, /.*\.pagerduty\.com/).with(:body => /"details":\{.*"worker":"#{worker.to_s}".*\}/).should have_been_made
         end
 
-        it 'should call the pagerduty api with the correct backtrace in the details' do
+        it 'should call the pagerduty api with the correct exception class in the details' do
           save
-          a_request(:any, /.*.pagerduty.com/).with(:body => /"details":\{.*"backtrace":"dummy_file.rb:23\\ndummy_file.rb:42".*\}/).should have_been_made
+          a_request(:any, /.*\.pagerduty\.com/).with(:body => /"details":\{.*"exception":\{.*"class":"#{exception.class.name}".*\}.*\}/).should have_been_made
         end
+
+        it 'should call the pagerduty api with the correct exception message in the details' do
+          save
+          a_request(:any, /.*\.pagerduty\.com/).with(:body => /"details":\{.*"exception":\{.*"message":"#{exception.message}".*\}.*\}/).should have_been_made
+        end
+
+        it 'should call the pagerduty api with the correct exception backtrace in the details' do
+          save
+          a_request(:any, /.*\.pagerduty\.com/).with(:body => /"details":\{.*"exception":\{.*"backtrace":\["dummy_file.rb:23","dummy_file.rb:42"\].*\}.*\}/).should have_been_made
+        end
+
       end
 
       context 'when there is no service key' do

@@ -53,12 +53,13 @@ module Resque
       def save
         if service_key
           pagerduty_client.trigger_incident(
-            :description => "Job raised an error: #{self.exception.to_s}",
+            :description => "#{exception.class} in #{payload['class']}: #{exception.message}",
             :details => {:queue => queue,
-                         :class => payload['class'].to_s,
-                         :args => payload['arguments'],
-                         :exception => exception.inspect,
-                         :backtrace => exception.backtrace.join("\n")}
+                         :worker => worker.to_s,
+                         :payload => payload,
+                         :exception => {:class => exception.class.name,
+                                        :message => exception.message,
+                                        :backtrace => exception.backtrace}}
           )
         end
       end
