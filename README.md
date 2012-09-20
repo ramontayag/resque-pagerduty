@@ -48,11 +48,11 @@ it will default to using the `service_key` configured on the backend itself. For
       end
 
       def self.perform(my_arg)
-        # Some code that could throw an exception goes here
+        # Some code that could raise an exception goes here
       end
     end
 
-If the `MyJob.perform` method throws an exception during processing, the failure
+If the `MyJob.perform` method raises an exception during processing, the failure
 backend would use the `MyJob.pagerduty_service_key` instead of the
 `Resque::Failure::Pagerduty.service_key` to trigger the incident.
 

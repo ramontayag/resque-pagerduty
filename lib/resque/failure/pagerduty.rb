@@ -14,12 +14,11 @@ module Resque
       end
 
       # The GUID of the Pagerduty "Generic API" service to be notified.
-      # If a pagerduty_service_key is provided on the payload class, then the
-      # payload service_key will be used; otherwise, the default service_key
-      # can be configured on the failure backend class.
+      # If a `pagerduty_service_key` callback is implemented on the payload
+      # class, then that will be used. Otherwise, the default
+      # {Resque::Failure::Pagerduty.service_key} will be used.
       #
       # @see .configure
-      # @see .service_key
       def service_key
         payload_class = Module.const_get(payload['class'])
         if (payload_class.respond_to?(:pagerduty_service_key) &&
@@ -30,7 +29,7 @@ module Resque
         end
       end
 
-      # Configures the failure backend for the Pagerduty API.
+      # Configure the failure backend for the Pagerduty API.
       #
       # @example Minimal configuration
       #   Resque::Failure::Pagerduty.configure do |config|
@@ -43,7 +42,7 @@ module Resque
         self
       end
 
-      # Resets configured values.
+      # Reset configured values.
       # @see .configure
       def self.reset
         self.service_key = nil
