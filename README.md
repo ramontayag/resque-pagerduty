@@ -1,6 +1,9 @@
-# resque-pagerduty #
+# resque-pagerduty [![build status][build-img]][build-pg]
 
 A Resque failure backend for triggering incidents in Pagerduty.
+
+[build-img]: https://secure.travis-ci.org/maeve/resque-pagerduty.png
+[build-pg]: http://travis-ci.org/#!/maeve/resque-pagerduty
 
 ## Dependencies ##
 
