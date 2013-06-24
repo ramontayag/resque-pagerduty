@@ -154,6 +154,35 @@ describe Resque::Failure::Pagerduty do
           a_request(:any, /.*\.pagerduty\.com/).with(:body => /"details":\{.*"exception":\{.*"backtrace":\["dummy_file.rb:23","dummy_file.rb:42"\].*\}.*\}/).should have_been_made
         end
 
+        it 'should trigger an incident with a description and details' do
+          pagerduty_client = double
+          Redphone::Pagerduty.stub(:new).with(hash_including(
+            :service_key => service_key,
+            :subdomain => '',
+            :user => '',
+            :password => ''
+          )).and_return(pagerduty_client)
+
+          Resque::Failure::GeneratesPagerdutyDesc.stub(:execute).
+            with(exception, payload).and_return('Generated description')
+
+          pagerduty_client.should_receive(:trigger_incident).with(hash_including(
+            :description => 'Generated description',
+            :details => {
+              :queue => queue,
+              :worker => worker.to_s,
+              :payload => payload,
+              :exception => {
+                :class => exception.class.name,
+                :message => exception.message,
+                :backtrace => exception.backtrace
+              }
+            }
+          ))
+
+          save
+        end
+
       end
 
       context 'when there is no service key' do
@@ -162,7 +191,7 @@ describe Resque::Failure::Pagerduty do
           a_request(:any, /.*.pagerduty.com/).should_not have_been_made
         end
       end
-    end
+    end # end describe #save
 
     it { should respond_to(:log) }
   end
