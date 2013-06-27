@@ -1,6 +1,6 @@
-# v0.0.1 (2012-09-19)
+# v0.1.1 (2013-06-27)
 
-* Initial release
+* Bug fix: truncate descriptions longer than 120 character. See issue #1.
 
 # v0.1.0 (2012-09-20)
 
@@ -9,3 +9,7 @@
 * Travis CI integration
 
 [resque-std]: https://github.com/defunkt/resque/blob/master/docs/PLUGINS.md
+
+# v0.0.1 (2012-09-19)
+
+* Initial release
