@@ -1,5 +1,7 @@
 require 'resque'
 require 'redphone/pagerduty'
+require 'easy_class_to_instance_method'
+require 'resque/failure/generates_pagerduty_desc'
 
 module Resque
   module Failure
@@ -52,7 +54,7 @@ module Resque
       def save
         if service_key
           pagerduty_client.trigger_incident(
-            :description => "#{exception.class} in #{payload['class']}: #{exception.message}",
+            :description => description,
             :details => {:queue => queue,
                          :worker => worker.to_s,
                          :payload => payload,
@@ -64,6 +66,11 @@ module Resque
       end
 
       private
+
+      def description
+        @description ||= GeneratesPagerdutyDesc.execute(exception, payload)
+      end
+
       def pagerduty_client
         Redphone::Pagerduty.new(
           :service_key => service_key,
