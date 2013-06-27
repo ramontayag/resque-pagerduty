@@ -22,7 +22,6 @@ Gem::Specification.new do |s|
 
   s.add_dependency('resque', '~>1.7')
   s.add_dependency('redphone', '~>0.0.6')
-  s.add_dependency('easy_class_to_instance_method', '0.0.1')
 
   s.add_development_dependency('rake')
   s.add_development_dependency('rspec', '~>2.11')

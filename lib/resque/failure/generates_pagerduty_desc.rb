@@ -4,8 +4,6 @@ module Resque
       MAX_LENGTH = 120
       OMISSION = '...'
 
-      easy_class_to_instance
-
       def initialize(exception, payload)
         @exception = exception
         @payload = payload
@@ -17,6 +15,10 @@ module Resque
         else
           full_message
         end
+      end
+
+      def self.execute(exception, payload)
+        new(exception, payload).execute
       end
 
       private

@@ -1,6 +1,5 @@
 require 'resque'
 require 'redphone/pagerduty'
-require 'easy_class_to_instance_method'
 require 'resque/failure/generates_pagerduty_desc'
 
 module Resque
