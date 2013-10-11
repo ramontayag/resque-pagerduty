@@ -1,3 +1,8 @@
+# TBA
+
+* Bug fix: fixes issue where nested classes caused an [error](https://github.com/g5search/resque-pagerduty/pull/4)
+* Update readme to reflect [g5search ownership](https://github.com/g5search/resque-pagerduty/pull/6)
+
 # v0.1.1 (2013-06-27)
 
 * Bug fix: truncate descriptions longer than 120 character. See issue #1.
